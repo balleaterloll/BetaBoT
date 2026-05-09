@@ -17,14 +17,13 @@ let targetConfig = { ip: '', port: 25565, running: false };
 function createBot(slotId) {
     if (!targetConfig.running) return;
 
-    const baseName = "GojoKaBetaBoT";
-    const username = slotId === 1 ? baseName : `\( {baseName} \){slotId}`;
-
+    const username = `GojoKaBetaBoT`;
+    
     const bot = mineflayer.createBot({
         host: targetConfig.ip,
         port: parseInt(targetConfig.port),
         username: username,
-        version: false
+        version: false // Auto-version detection
     });
 
     bot.loadPlugin(pathfinder);
@@ -35,24 +34,13 @@ function createBot(slotId) {
     });
 
     bot.on('spawn', () => {
-        // Auto Register / Login
+        // Bypass Logic: Auto Register/Login
         setTimeout(() => {
             bot.chat(`/register gojoontop gojoontop`);
             bot.chat(`/login gojoontop`);
         }, 2000);
 
-        // Special logic for bananasmp.net - Auto accept TP from _ShoRyafxks_
-        if (targetConfig.ip.toLowerCase().includes('bananasmp.net')) {
-            bot.on('messagestr', (message) => {
-                if (message.includes('_ShoRyafxks_') && 
-                    (message.toLowerCase().includes('tp') || message.toLowerCase().includes('teleport'))) {
-                    bot.chat('/tpaccept');
-                    io.emit('log', `<span class="text-purple-400">[${username}]</span> Accepted TP from _ShoRyafxks_`);
-                }
-            });
-        }
-
-        // Anti-AFK
+        // Bypass Logic: Anti-AFK Random Movement
         const moveInterval = setInterval(() => {
             if (!bot.entity) return;
             const keys = ['forward', 'back', 'left', 'right', 'jump'];
@@ -61,7 +49,7 @@ function createBot(slotId) {
             setTimeout(() => bot.setControlState(key, false), 500);
         }, 12000);
 
-        // Random Chat
+        // Bypass Logic: Random Chatter
         const chatInterval = setInterval(() => {
             const msgs = ["Hello world", "Cool server!", "How is it going?", "...", "Nice"];
             bot.chat(msgs[Math.floor(Math.random() * msgs.length)]);
@@ -73,15 +61,14 @@ function createBot(slotId) {
         });
     });
 
-    bot.on('error', (err) => {
-        io.emit('log', `<span class="text-red-500">[Error ${username}]</span> ${err.message}`);
-    });
+    bot.on('error', (err) => io.emit('log', `<span class="text-red-500">[Error]</span> ${err.message}`));
 
     bot.on('end', (reason) => {
         io.emit('log', `<span class="text-yellow-500">[${username}]</span> Disconnected: ${reason}`);
         io.emit('status', { slotId, user: 'None', state: 'Reconnecting...' });
         delete activeBots[slotId];
         
+        // Auto-Rejoin logic
         if (targetConfig.running) {
             setTimeout(() => {
                 activeBots[slotId] = createBot(slotId);
@@ -204,5 +191,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Gojo Panel active on port ${PORT}`);
+    console.log(`Nebryx Control Panel active on port ${PORT}`);
 });
