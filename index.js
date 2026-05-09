@@ -17,7 +17,7 @@ let targetConfig = { ip: '', port: 25565, running: false };
 function createBot(slotId) {
     if (!targetConfig.running) return;
 
-    const username = `GojoKaBetaBoT`;
+    const username = `GojoXShorya_`;
     
     const bot = mineflayer.createBot({
         host: targetConfig.ip,
